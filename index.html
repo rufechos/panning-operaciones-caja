@@ -372,7 +372,7 @@ function compute(dk){
   const brk={};
   if(c.breaks){const ord=sh.slice().sort((x,y)=>x.a-y.a||x.b-y.b);
     for(const s of ord){const len=brkLen(s.b-s.a);if(!len)continue;const lo=Math.max(s.a+(+c.minAfter||0),T(c.brkFrom)||600),hi=s.b-len-30,mid=(s.a+s.b)/2-len/2;let best=null,bs=1e9;
-      for(let t=Math.ceil(lo/STEP)*STEP;t<=hi;t+=STEP){let ov=0;for(const o of ord){const q=brk[o.pid];if(q&&o.p.chain===s.p.chain&&q.a<t+len&&t<q.b)ov++}const sc=ov*8+Math.abs(t-mid)/15;if(sc<bs){bs=sc;best=t}}
+      for(let t=Math.ceil(lo/30)*30;t<=hi;t+=30){let ov=0;for(const o of ord){const q=brk[o.pid];if(q&&o.p.chain===s.p.chain&&q.a<t+len&&t<q.b)ov++}const sc=ov*8+Math.abs(t-mid)/15;if(sc<bs){bs=sc;best=t}}
       if(best!=null)brk[s.pid]={a:best,b:best+len}}}
   const need={},cov={};c.tasks.forEach(t=>{const mm=minsOf(t,dk);need[t.id]=new Array(NS).fill(0);cov[t.id]=new Array(NS).fill(0);
     for(let i=0;i<NS;i++){const m=D0+i*STEP,bi=bandOf(m);if(bi<0)continue;if(t.needFrom&&m<T(t.needFrom))continue;need[t.id][i]=+mm[bi]||0}});
