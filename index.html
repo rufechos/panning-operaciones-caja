@@ -130,7 +130,7 @@ textarea{width:100%;min-height:120px;font:12px var(--f-mono)}
 .empty{padding:22px 10px;text-align:center;color:var(--muted)}
 .gx{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .gw{position:relative;min-width:1130px}
-.gr{display:flex;border-top:1px solid var(--line);min-height:44px}
+.gr{display:flex;border-top:1px solid var(--line);min-height:34px}
 .gr.gh{min-height:24px;border-top:0;font:600 11px var(--f-mono);color:var(--muted)}
 .gr .lb{flex:0 0 132px;position:sticky;left:0;z-index:2;background:var(--surface);padding:5px 8px 5px 2px;min-width:0}
 .gr.gh .lb{font:700 11px var(--f-ui);text-transform:uppercase;letter-spacing:.05em;padding-top:4px}
@@ -140,7 +140,7 @@ textarea{width:100%;min-height:120px;font:12px var(--f-mono)}
 .gr .tl{position:relative;flex:1;background-image:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px calc(100%/15.5))}
 .gr.gh .tl{background:none}
 .gr.gh .tl span{position:absolute;transform:translateX(-50%);top:4px;white-space:nowrap}
-.gb{position:absolute;top:4px;bottom:4px;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;font:700 11px var(--f-ui);padding:0 2px;box-sizing:border-box}
+.gb{position:absolute;top:9px;bottom:9px;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;font:700 10px var(--f-ui);padding:0 2px;box-sizing:border-box}
 .gb.d{background:var(--brk);color:var(--brk-ink);font-weight:600}
 @media (orientation:landscape){.gw{min-width:0;width:100%}.gr .lb{flex-basis:116px}.gr .lb .nm{font-size:12px}}
 @media (max-width:380px){.shr{grid-template-columns:minmax(0,1fr) 84px 84px 36px}.tk{grid-template-columns:minmax(0,1fr) 112px}}
@@ -415,9 +415,12 @@ function compute(dk){
       const any=c.tasks.find(t=>okT(t.id));if(any)put(s,any.id)}
     for(const s of act){const id=asg[s.pid]||"_";seq[s.pid][i]=id;if(id!=="_"){runL[s.pid]=last[s.pid]===id?(runL[s.pid]||0)+1:1;last[s.pid]=id;if(m<open&&id===c.pre[s.p.chain])continue;hc[s.pid][id]=(hc[s.pid][id]||0)+1;
       let h=home[s.pid];if(!h||hc[s.pid][id]>(hc[s.pid][h]||0))home[s.pid]=id}}}
-  /* sin retales: tramos de menos de 15 min se unen al anterior */
-  for(const pid in seq){const a=seq[pid];let i=0;while(i<NS){if(!a[i]||a[i]==="D"){i++;continue}let j=i;while(j<NS&&a[j]===a[i])j++;
-      if(j-i<3){const prev=i>0&&a[i-1]&&a[i-1]!=="D"?a[i-1]:(j<NS&&a[j]&&a[j]!=="D"?a[j]:null);const pp=P(pid);if(prev&&pp&&!pp.never.includes(prev)){for(let k=i;k<j;k++)a[k]=prev}}i=j}}
+  /* cada persona al menos 1 h seguida en cada tarea: los tramos más cortos pasan al vecino (nunca a un descanso) */
+  for(let pass=0;pass<3;pass++)for(const pid in seq){const a=seq[pid],pp=P(pid);let i=0;
+    while(i<NS){if(!a[i]||a[i]==="D"){i++;continue}let j=i;while(j<NS&&a[j]===a[i])j++;
+      if(j-i<12){const L=i>0?a[i-1]:null,R=j<NS?a[j]:null;const ok=x=>!!x&&x!=="D"&&x!=="_"&&!(pp&&pp.never.includes(x));
+        const to=ok(L)?L:(ok(R)?R:null);if(to)for(let k=i;k<j;k++)a[k]=to}
+      i=j}}
   for(const pid in seq)seq[pid].forEach((id,i)=>{if(id&&cov[id])cov[id][i]++});
   const people=sh.map(s=>{const a=seq[s.pid],segs=[];for(let i=0;i<NS;i++){const id=a[i];if(!id)continue;const m=D0+i*STEP,L=segs[segs.length-1];if(L&&L.id===id&&L.b===m)L.b=m+STEP;else segs.push({id,a:m,b:m+STEP})}
     return {pid:s.pid,name:s.p.name,chain:s.p.chain,a:s.a,b:s.b,brk:brk[s.pid]||null,segs}}).sort((x,y)=>x.a-y.a||x.b-y.b||x.name.localeCompare(y.name,"es"));
