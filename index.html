@@ -351,8 +351,8 @@ function parsePdfBars(pages){const rows=[];let grp=null,day=null,axes=0,lastAx=n
       bd.x0=x0;bd.x1=x1}
     const bars=bands.filter(b=>b.x0!=null&&b.x1-b.x0>=step*0.9);
     const vars=[["l",0],["c",0],["c",30]].map(([pos,off])=>({pos,off,f:lfit(ax.map(i=>({x:pos==="l"?i.x0:(i.x0+i.x1)/2,t:i.hr*60+off})))}));
-    const q15=m=>Math.round(m/15)*15;let best=vars[2],bs=-1;
-    for(const v of vars){let sc=0;for(const b of bars)for(const x of [b.x0,b.x1]){const t=v.f.a+v.f.b*x;if(Math.abs(t-Math.round(t/60)*60)<=7)sc+=2;else if(Math.abs(t-Math.round(t/30)*30)<=7)sc+=1}if(sc>bs){bs=sc;best=v}}
+    /* En estos PDF la etiqueta de cada hora está centrada en su columna: la hora empieza media columna antes (vars[2]) */
+    const q15=m=>Math.round(m/5)*5;const best=vars[2];
     const lefts=lines.map(l=>{const its=l.items.filter(i=>i.x1<=xStart+step*0.3);return its.length?{yc:l.yc,y0:l.y0,y1:l.y1,text:its.map(i=>i.s).join(" ").replace(/\s+/g," ").trim()}:null}).filter(Boolean).filter(l=>l.yc>axY1);
     const ev=[];for(const l of lefts){const n=norm(l.text);const G=l.text.length<40?grpOfText(n):null;const tl=timesIn(l.text),tm=tl.length;const nt=(tm?l.text.slice(0,tl[0].i):l.text).replace(/[\s\-–:|]+$/,"").trim(),nn=norm(nt);
       if(G&&!tm&&l.text.length<40)ev.push({y:l.yc,kind:"g",G});else if(/[a-zñ]{2}/.test(nn)&&!/^\d/.test(nn)&&(nn.match(/\d/g)||[]).length<3)ev.push({y:l.yc,kind:"n",l:{...l,text:nt},used:false})}
